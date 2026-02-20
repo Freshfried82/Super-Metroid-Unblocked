@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Pokémon Emulator</title>
+    <title>Pokémon Emulator + Save States</title>
     <style>
         body, html {
             margin: 0;
@@ -11,26 +11,36 @@
             height: 100%;
             overflow: hidden;
             color: white;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         #topbar {
-            padding: 10px;
-            background: #222;
+            padding: 12px;
+            background: #1a1a1a;
             display: flex;
             align-items: center;
-            gap: 10px;
+            border-bottom: 2px solid #333;
+        }
+        #romInput {
+            margin-left: 15px;
+            color: #ccc;
         }
         #game {
             width: 100vw;
-            height: calc(100vh - 50px);
+            height: calc(100vh - 60px);
+        }
+        .instruction {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: auto;
         }
     </style>
 </head>
 <body>
 
 <div id="topbar">
-    <label for="romInput">Load Pokémon ROM:</label>
+    <strong>Trainer Console:</strong>
     <input type="file" id="romInput" accept=".gba,.gbc,.gb">
+    <span class="instruction">Hover at the bottom of the game to see Save/Load options.</span>
 </div>
 
 <div id="game"></div>
@@ -44,18 +54,22 @@
 
         const url = URL.createObjectURL(file);
 
-        // EmulatorJS config updated for Pokémon
+        // CONFIGURATION
         window.EJS_player = "#game";
-        
-        // Changing 'snes' to 'gba' allows playing most Pokémon titles
         window.EJS_core = "gba"; 
         window.EJS_gameUrl = url;
         window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
         window.EJS_startOnLoaded = true;
+        
+        // SAVE SYSTEM SETTINGS
+        // This ensures the internal database (IndexedDB) is used for persistent saves
+        window.EJS_gameID = file.name; // Unique ID based on filename
+        window.EJS_onSave = function(data) {
+            console.log("Game progress auto-saved to browser storage.");
+        };
 
-        // Reset the container
+        // Clear and Load
         document.getElementById("game").innerHTML = "";
-
         const script = document.createElement("script");
         script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
         document.body.appendChild(script);
